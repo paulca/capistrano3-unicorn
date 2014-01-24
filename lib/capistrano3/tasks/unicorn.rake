@@ -70,6 +70,17 @@ namespace :unicorn do
     end
   end
 
+  desc 'Duplicate Unicorn (USR2 + QUIT); use this when preload_app: true and unicorn.rb is configured to send a QUIT eg. https://github.com/sosedoff/capistrano-unicorn/issues/40#issuecomment-14942565'
+  task :duplicate do
+    invoke 'unicorn:start'
+    on roles(fetch(:unicorn_roles)) do
+      within release_path do
+        info "unicorn duplicating..."
+        execute :kill, "-s USR2", pid
+      end
+    end
+  end
+
   desc 'Add a worker (TTIN)'
   task :add_worker do
     on roles(fetch(:unicorn_roles)) do
